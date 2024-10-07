@@ -2,7 +2,7 @@
 #include <bitset>
 using namespace std;
 
-void prettyPrintMatrix(vector<set<int>> &matrix){
+void prettyPrintMatrix(vector<set<int>> &matrix,int k){
     freopen ("input_matrix.txt", "w", stdout);
     for(auto row :matrix){
         string temp;
@@ -12,6 +12,7 @@ void prettyPrintMatrix(vector<set<int>> &matrix){
         temp.pop_back();
         cout<<temp<<endl;
     }
+    cout<<k;
 }
 
 vector<set<int>> generateMatrix(int n,int k){
@@ -69,7 +70,7 @@ int main(){
     int n,k;
     cin>>n>>k;
     auto matrix = generateMatrix(n,k);
-    prettyPrintMatrix(matrix);
+    prettyPrintMatrix(matrix,k);
     auto clauses = genClauses(matrix,k);
     prettyPrintClauses(clauses,n);
 }

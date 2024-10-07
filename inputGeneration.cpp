@@ -5,10 +5,12 @@ using namespace std;
 void prettyPrintMatrix(vector<set<int>> &matrix){
     freopen ("input_matrix.txt", "w", stdout);
     for(auto row :matrix){
+        string temp;
         for(auto item : row){
-            cout<<item<<" ";
+            temp+= to_string(item) +" ";
         }
-        cout<<endl;
+        temp.pop_back();
+        cout<<temp<<endl;
     }
 }
 

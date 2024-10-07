@@ -1,6 +1,4 @@
-#include<bits/stdc++.h>
-#include <bitset>
-using namespace std;
+#include "inputGeneration.h"
 
 // Function to print the matrix in a raw binary format
 // 'matrix' is a vector of sets where each set represents the items in a row

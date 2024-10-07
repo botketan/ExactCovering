@@ -13,6 +13,8 @@ void printMatrix(vector<set<int>> &matrix, int k) {
     // This will store the binary representation of the matrix
     vector<vector<int>> raw(matrix.size(), vector<int>(k, 0));
 
+    cout<<matrix.size()<<" "<<k<<endl;
+
     // Loop through each row of the matrix
     for (int i = 0; i < matrix.size(); i++) {
         auto row = matrix[i]; // Extract the current row as a set of items
@@ -42,6 +44,8 @@ void prettyPrintMatrix(vector<set<int>> &matrix, int k) {
     // Redirect standard output to the file "input_matrix.txt"
     freopen("input_encoded.txt", "w", stdout);
 
+    cout<<matrix.size()<<" "<<k<<endl;
+
     // Loop through each row of the matrix
     for (auto row : matrix) {
         string temp;
@@ -52,7 +56,6 @@ void prettyPrintMatrix(vector<set<int>> &matrix, int k) {
         temp.pop_back(); // Remove the trailing space from the string
         cout << temp << endl; // Print the row
     }
-    cout << k; // Print the value of 'k'
 }
 
 // Function to generate a random matrix with 'n' rows and items up to 'k'

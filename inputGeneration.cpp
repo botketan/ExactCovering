@@ -2,12 +2,45 @@
 #include <bitset>
 using namespace std;
 
+// Function to print the matrix in a raw binary format
+// 'matrix' is a vector of sets where each set represents the items in a row
+// 'k' is the number of distinct items (columns) in the matrix
+void printMatrix(vector<set<int>> &matrix, int k) {
+    // Redirect standard output to the file "input_raw.txt"
+    freopen("input_raw.txt", "w", stdout);
+
+    // Initialize a 2D vector 'raw' of size matrix.size() x k with all values set to 0
+    // This will store the binary representation of the matrix
+    vector<vector<int>> raw(matrix.size(), vector<int>(k, 0));
+
+    // Loop through each row of the matrix
+    for (int i = 0; i < matrix.size(); i++) {
+        auto row = matrix[i]; // Extract the current row as a set of items
+
+        // Loop through each item in the set and mark it as present in the binary matrix
+        for (auto item : row) {
+            raw[i][item] = 1; // Set corresponding column (item) to 1
+        }
+    }
+
+    // Loop through each row of the binary matrix 'raw'
+    for (int i = 0; i < matrix.size(); i++) {
+        // Print the binary representation of the current row, separated by spaces
+        for (int j = 0; j < k - 1; j++) {
+            cout << raw[i][j] << " "; // Print all items except the last one with space
+        }
+        cout << raw[i][k - 1] << endl; // Print the last item without a trailing space
+    }
+}
+
+
+
 // Function to print the matrix in a human-readable format
 // 'matrix' is a vector of sets of integers representing the matrix
 // 'k' is the number of distinct items allowed in each row
 void prettyPrintMatrix(vector<set<int>> &matrix, int k) {
     // Redirect standard output to the file "input_matrix.txt"
-    freopen("input_matrix.txt", "w", stdout);
+    freopen("input_encoded.txt", "w", stdout);
 
     // Loop through each row of the matrix
     for (auto row : matrix) {
@@ -107,6 +140,9 @@ int main() {
 
     // Print the matrix to the file
     prettyPrintMatrix(matrix, k);
+
+    //Print raw Matrix to the file
+    printMatrix(matrix,k);
 
     // Generate the CNF clauses based on the matrix
     auto clauses = genClauses(matrix, k);

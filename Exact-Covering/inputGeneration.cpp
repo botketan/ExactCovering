@@ -9,7 +9,7 @@ void printMatrix(vector<set<int>> &matrix, int k) {
 
     // Initialize a 2D vector 'raw' of size matrix.size() x k with all values set to 0
     // This will store the binary representation of the matrix
-    vector<vector<int>> raw(matrix.size(), vector<int>(k, 0));
+    vector<vector<int>> raw(matrix.size(), vector<int>(k + 1, 0));
 
     cout<<matrix.size()<<" "<<k<<endl;
 
@@ -26,10 +26,10 @@ void printMatrix(vector<set<int>> &matrix, int k) {
     // Loop through each row of the binary matrix 'raw'
     for (int i = 0; i < matrix.size(); i++) {
         // Print the binary representation of the current row, separated by spaces
-        for (int j = 0; j < k - 1; j++) {
+        for (int j = 1; j < k; j++) {
             cout << raw[i][j] << " "; // Print all items except the last one with space
         }
-        cout << raw[i][k - 1] << endl; // Print the last item without a trailing space
+        cout << raw[i][k] << endl; // Print the last item without a trailing space
     }
 }
 

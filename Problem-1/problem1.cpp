@@ -1,7 +1,9 @@
-// To Access pretty print matrix function using header
-#include "../Exact-Covering/inputGeneration.h"
-#include <thread>
-#include <mutex>
+/**
+ * Find a bitstring S = x1x2...xn such that there are exactly k ones and no three equally spaced ones
+ */
+#include<bits/stdc++.h>
+
+using namespace std;
 
 // Function to generate all K subet disjunctions of n
 // If `negation` is true, it create clauses with negative values
@@ -20,18 +22,36 @@ void generateExactK(vector<vector<int>>&ans, vector<int>&temp, int n, int k, int
     }
 }
 
+// To print the clauses in DIMACS Format
+// n is the number of clauses
+void prettyPrintClauses(vector<vector<int>>& clauses, int n, string fileName) {
+    // Redirect standard output to the file defined by fileName
+    freopen(fileName.append(".txt").c_str(), "w", stdout);
+
+    // Print the problem line in CNF format
+    cout << "p cnf " << n << " " << clauses.size() << endl;
+
+    // Loop through each clause and print it
+    for (auto clause : clauses) {
+        for (int i = 0; i < clause.size(); i++) {
+            cout << clause[i] << " "; // Print the clause literals
+        }
+        cout << 0 << endl; // End of clause
+    }
+}
+
 int main()
 {
+    int n = 20;
+    int k = 6;
     vector<vector<int>>ans;
     vector<int>temp;
-    generateExactK(ans,temp,20,6,0,true);
-    //freopen("output.txt","w",stdout);
-    for(auto x : ans)
-    {
-        for(auto y: x){
-            cout<<y<<" ";
-        }
-        cout<<endl;
-    }
+    // No more than k variables should be true
+    generateExactK(ans,temp,n,k+1,0,true);
+    temp.clear();
+    // Atleast k variables should be true
+    generateExactK(ans,temp,n,n-k+1,0,false);
+    // TODO: Code for no 3 equally spaced ones 
+    prettyPrintClauses(ans,n,"problem_a1");
     return 0;
 }

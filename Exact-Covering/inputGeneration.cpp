@@ -149,5 +149,5 @@ int main() {
     auto clauses = genClauses(matrix, k);
 
     // Print the clauses to the file in DIMACS format
-    prettyPrintClauses(clauses, n);
+    prettyPrintClauses(clauses, n, "pairwise_encoding");
 }

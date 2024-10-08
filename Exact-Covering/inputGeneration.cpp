@@ -168,23 +168,18 @@ vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n) {
 }
 
 // Function to output clauses to a file
-void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int numVars) {
-
-    string filename = "bitwise_encoding.txt"; // Output filename
-    ofstream outfile(filename);
-    if (!outfile) {
-        cerr << "Error opening file for writing." << endl;
-        return;
-    }
+void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int numVars, string fileName) {
+    // Redirect standard output to the file defined by fileName
+    freopen(fileName.append(".txt").c_str(), "w", stdout);
     
     // Print the problem line in CNF format
-    outfile << "p cnf " << numVars << " " << clauses.size() << endl;
+    cout << "p cnf " << numVars << " " << clauses.size() << endl;
 
     for (const auto& clause : clauses) {
         for (size_t j = 0; j < clause.size() - 1; j++) {
-            outfile << clause[j] << " "; // Print clause literals
+            cout << clause[j] << " "; // Print clause literals
         }
-        outfile << clause.back() << endl; // End of clause
+        cout << clause.back() << endl; // End of clause
     }
 }
 
@@ -208,5 +203,11 @@ int main() {
     auto clauses = genClauses(matrix, k);
 
     // Print the clauses to the file in DIMACS format
-    prettyPrintClauses(clauses, n);
+    prettyPrintClauses(clauses, n, "pairwise_encoding");
+
+    // Generate the bitwise clauses
+    auto bitwiseClauses = genBitwiseClauses(matrix, n);
+
+    // Print the clauses to the file
+    prettyPrintBitwiseEncoding(bitwiseClauses, k, "bitwise_encoding");
 }

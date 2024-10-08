@@ -113,9 +113,9 @@ vector<vector<int>> genClauses(vector<set<int>>& matrix, int k) {
 // Function to print the clauses in a DIMACS CNF format
 // 'clauses' is a vector of CNF clauses
 // 'n' is the number of variables
-void prettyPrintClauses(vector<vector<int>>& clauses, int n) {
-    // Redirect standard output to the file "pairwise_encoding.txt"
-    freopen("pairwise_encoding.txt", "w", stdout);
+void prettyPrintClauses(vector<vector<int>>& clauses, int n, string fileName) {
+    // Redirect standard output to the file defined by fileName
+    freopen(fileName.append(".txt").c_str(), "w", stdout);
 
     // Print the problem line in CNF format
     cout << "p cnf " << n << " " << clauses.size() << endl;
@@ -209,10 +209,4 @@ int main() {
 
     // Print the clauses to the file in DIMACS format
     prettyPrintClauses(clauses, n);
-
-    // Generate the bitwise clauses
-    auto bitwiseClauses = genBitwiseClauses(matrix, n);
-
-    // Output the clauses to a file
-    prettyPrintBitwiseEncoding(bitwiseClauses, k);
 }

@@ -129,6 +129,65 @@ void prettyPrintClauses(vector<vector<int>>& clauses, int n) {
     }
 }
 
+// Function to generate bitwise encoding clauses
+vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n) {
+    int k = ceil(log2(n)); // Number of auxiliary variables
+    vector<vector<int>> clauses; // To store generated clauses
+
+    for (int i = 0; i < matrix.size(); i++) {
+        vector<int> rowClause; // For at least one item
+
+        // Convert the current row from set to vector for indexing
+        vector<int> items(matrix[i].begin(), matrix[i].end());
+
+        // Add each item to the at least one clause
+        for (int item : items) {
+            rowClause.push_back(item); // Add item to clause
+        }
+        rowClause.push_back(0); // Clause terminator
+        clauses.push_back(rowClause); // Add the at least one clause
+
+        // Create exactly one clauses
+        int rowSize = items.size(); // Number of items in the current row
+        for (int j = 0; j < rowSize; j++) {
+            // For each item, we need to create clauses based on its binary representation
+            for (int bit = 0; bit < k; bit++) {
+                // Get the bit value for (j + 1)
+                int l_i_j = ((j + 1) >> bit) & 1; // Get bit at position 'bit'
+
+                // Using a_j if the bit is 1, else ¬a_j
+                if (l_i_j) {
+                    clauses.push_back({-items[j], bit + 1, 0}); // Using a_j
+                } else {
+                    clauses.push_back({-items[j], -(bit + 1), 0}); // Using ¬a_j
+                }
+            }
+        }
+    }
+    return clauses; // Return the generated clauses
+}
+
+// Function to output clauses to a file
+void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int numVars) {
+
+    string filename = "bitwise_encoding.txt"; // Output filename
+    ofstream outfile(filename);
+    if (!outfile) {
+        cerr << "Error opening file for writing." << endl;
+        return;
+    }
+    
+    // Print the problem line in CNF format
+    outfile << "p cnf " << numVars << " " << clauses.size() << endl;
+
+    for (const auto& clause : clauses) {
+        for (size_t j = 0; j < clause.size() - 1; j++) {
+            outfile << clause[j] << " "; // Print clause literals
+        }
+        outfile << clause.back() << endl; // End of clause
+    }
+}
+
 // Main function
 int main() {
     srand(time(0)); // Seed the random number generator
@@ -150,4 +209,10 @@ int main() {
 
     // Print the clauses to the file in DIMACS format
     prettyPrintClauses(clauses, n);
+
+    // Generate the bitwise clauses
+    auto bitwiseClauses = genBitwiseClauses(matrix, n);
+
+    // Output the clauses to a file
+    prettyPrintBitwiseEncoding(bitwiseClauses, k);
 }

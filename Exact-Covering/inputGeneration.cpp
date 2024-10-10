@@ -183,6 +183,139 @@ void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int numVars,
     }
 }
 
+// Function to generate CNF clauses based on the matrix
+vector<vector<int>> genMatrixClauses(vector<set<int>> &matrix, int k)
+{
+    vector<vector<int>> ItemsMapping(k + 1); // Map of items to their row indices
+    int n = matrix.size();                   // Number of rows
+    int p = ceil(sqrt(n));
+    int q = ceil(n / (double)p);
+    map<int, int> u_map, v_map;
+    for (int i = 1; i <= p; i++)
+    {
+        u_map[i] = n + i;
+    }
+    for (int i = 1; i <= q; i++)
+    {
+        v_map[i] = n + p + i;
+    }
+
+    // Loop through each row and map the items to their respective rows
+    for (int i = 0; i < n; i++)
+    {
+        for (auto item : matrix[i])
+        {
+            ItemsMapping[item].push_back(i + 1); // Store row index for each item
+        }
+    }
+
+    set<vector<int>> Clauses; // Vector to store generated clauses
+    // Generate the clauses
+    for (int i = 1; i <= k; i++)
+    {
+        set<int> u, v;
+        vector<int> u_vec, v_vec;
+        for (auto x : ItemsMapping[i])
+        {
+            u.insert((x - 1) % p + 1);
+            v.insert((x - 1) / p + 1);
+        }
+        for (auto x : u)
+        {
+            u_vec.push_back(x);
+        }
+        for (auto x : v)
+        {
+            v_vec.push_back(x);
+        }
+        vector<int> mainClause;
+
+        // Generate a clause that includes all rows containing the current item
+        for (auto x : ItemsMapping[i])
+        {
+            mainClause.push_back(x); // Add row index to the clause
+        }
+        mainClause.push_back(0);    // Clause terminator (0)
+        Clauses.insert(mainClause); // Add the clause to the list
+
+        // 2
+        mainClause.clear();
+        for (auto x : u)
+        {
+            mainClause.push_back(u_map[x]); 
+        }
+        mainClause.push_back(0);   
+        Clauses.insert(mainClause); 
+
+        // 3
+        for (int i = 0; i < u_vec.size(); i++)
+        {
+            for (int j = i + 1; j < u_vec.size(); j++)
+            {
+                Clauses.insert({-u_map[u_vec[i]], -u_map[u_vec[j]], 0});
+            }
+        }
+
+        // 4
+        mainClause.clear();
+        for (auto x : v)
+        {
+            mainClause.push_back(v_map[x]);
+        }
+        mainClause.push_back(0);    // Clause terminator (0)
+        Clauses.insert(mainClause); // Add the clause to the list
+
+        // 5
+        for (int i = 0; i < v_vec.size(); i++)
+        {
+            for (int j = i + 1; j < v_vec.size(); j++)
+            {
+                Clauses.insert({-v_map[v_vec[i]], -v_map[v_vec[j]], 0});
+            }
+        }
+
+        // 6
+        for (auto x : u)
+        {
+            for (auto y : v)
+            {
+                Clauses.insert({-((x - 1) * q + y), u_map[x],0});
+                Clauses.insert({-((x - 1) * q + y), v_map[y],0});
+            }
+        }
+    }
+    vector<vector<int>> Clauses_vec;
+    for (auto x : Clauses)
+    {
+        vector<int> temp;
+        for (auto y : x)
+        {
+            temp.push_back(y);
+        }
+        Clauses_vec.push_back(temp);
+    }
+    return Clauses_vec; // Return the generated clauses
+}
+
+void prettyPrintMatrixClauses(vector<vector<int>> &clauses, int n, string fileName)
+{
+    // Redirect standard output to the file defined by fileName
+    freopen(fileName.append(".txt").c_str(), "w", stdout);
+
+    // Print the problem line in CNF format
+    cout << "p cnf " << n + ceil(sqrt(n)) * ceil(sqrt(n)) << " " << clauses.size() << endl;
+
+    // Loop through each clause and print it
+    for (auto clause : clauses)
+    {
+        for (int i = 0; i < clause.size() - 1; i++)
+        {
+            cout << clause[i] << " "; // Print the clause literals
+        }
+        cout << clause[clause.size() - 1] << endl; // End of clause
+    }
+}
+
 // Main function
 int main() {
     srand(time(0)); // Seed the random number generator
@@ -210,4 +343,10 @@ int main() {
 
     // Print the clauses to the file
     prettyPrintBitwiseEncoding(bitwiseClauses, k, "bitwise_encoding");
+
+    // Generate the matrix encoding clauses
+    auto matrixClauses = genMatrixClauses(matrix, k);
+
+    // Print the matrix encoding clauses to the file
+    prettyPrintMatrixClauses(matrixClauses, n, "matrix_encoding");
 }

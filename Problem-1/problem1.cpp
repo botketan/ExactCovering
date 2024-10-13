@@ -40,6 +40,18 @@ void prettyPrintClauses(vector<vector<int>>& clauses, int n, string fileName) {
     }
 }
 
+void addNoThreeEquallySpacedConstraint(vector<vector<int>>&ans, int n){
+    for(int i=1; i<=n; i++){
+        for(int j=i+1; j<=n; j++){
+            for(int k=j+1; k<=n; k++){
+                if(j-i == k-j){
+                    ans.push_back({-i,-j,-k, 0});
+                }
+            }
+        }
+    }
+}
+
 int main()
 {
     int n = 20;
@@ -51,7 +63,10 @@ int main()
     temp.clear();
     // Atleast k variables should be true
     generateExactK(ans,temp,n,n-k+1,0,false);
-    // TODO: Code for no 3 equally spaced ones 
+
+    // No 3 equally spaced ones constraints
+    addNoThreeEquallySpacedConstraint(ans,n);
+    
     prettyPrintClauses(ans,n,"problem_a1");
     return 0;
 }

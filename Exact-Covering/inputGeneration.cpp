@@ -130,50 +130,60 @@ void prettyPrintClauses(vector<vector<int>>& clauses, int n, string fileName) {
 }
 
 // Function to generate bitwise encoding clauses
-vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n) {
-    int k = ceil(log2(n)); // Number of auxiliary variables
-    vector<vector<int>> clauses; // To store generated clauses
+vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n, int k) {
+    int auxVarsCount = ceil(log2(n)); // Number of auxiliary variables needed for binary encoding
+    int totalVars = n + auxVarsCount; // Total variables are the row vars + auxiliary vars
+    
+    vector<vector<int>> clauses; // Store the resulting clauses
+    
+    // At least one clause for each item
+    vector<vector<int>> ItemsMapping(k + 1); // Map of items to their row indices
 
-    for (int i = 0; i < matrix.size(); i++) {
-        vector<int> rowClause; // For at least one item
-
-        // Convert the current row from set to vector for indexing
-        vector<int> items(matrix[i].begin(), matrix[i].end());
-
-        // Add each item to the at least one clause
-        for (int item : items) {
-            rowClause.push_back(item); // Add item to clause
+    // Loop through each row and map the items to their respective rows
+    for (int i = 0; i < n; i++) {
+        for (auto item : matrix[i]) {
+            ItemsMapping[item].push_back(i + 1); // Store row index for each item
         }
-        rowClause.push_back(0); // Clause terminator
-        clauses.push_back(rowClause); // Add the at least one clause
+    }
 
-        // Create exactly one clauses
-        int rowSize = items.size(); // Number of items in the current row
-        for (int j = 0; j < rowSize; j++) {
-            // For each item, we need to create clauses based on its binary representation
-            for (int bit = 0; bit < k; bit++) {
-                // Get the bit value for (j + 1)
-                int l_i_j = ((j + 1) >> bit) & 1; // Get bit at position 'bit'
+    // Generate the clauses
+    for (int i = 1; i <= k; i++) {
+        vector<int> mainClause;
 
-                // Using a_j if the bit is 1, else ¬a_j
-                if (l_i_j) {
-                    clauses.push_back({-items[j], bit + 1, 0}); // Using a_j
-                } else {
-                    clauses.push_back({-items[j], -(bit + 1), 0}); // Using ¬a_j
-                }
+        // Generate a clause that includes all rows containing the current item
+        for (auto x : ItemsMapping[i]) {
+            mainClause.push_back(x); // Add row index to the clause
+        }
+        mainClause.push_back(0); // Clause terminator (0)
+        clauses.push_back(mainClause); // Add the clause to the list
+    }
+    
+    // Exactly one clause using binary representation
+    for (int i = 1; i <= n; i++) {
+        // For each row, encode its binary form using auxiliary variables
+        for (int bit = 0; bit < auxVarsCount; bit++) {
+            int binaryDigit = (i >> bit) & 1; // Extract the bit (0 or 1) at position `bit` of row index `i`
+            if (binaryDigit == 1) {
+                clauses.push_back({-i, bit + n + 1, 0}); // -x_i or a_j
+            } else {
+                clauses.push_back({-i, -(bit + n + 1), 0}); // -x_i or ¬a_j
             }
         }
     }
+
     return clauses; // Return the generated clauses
 }
 
 // Function to output clauses to a file
-void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int numVars, string fileName) {
+void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int n, string fileName) {
     // Redirect standard output to the file defined by fileName
     freopen(fileName.append(".txt").c_str(), "w", stdout);
     
+    int auxVarsCount = ceil(log2(n)); // Number of auxiliary variables needed for binary encoding
+    int totalVars = n + auxVarsCount; // Total variables are the row vars + auxiliary vars
+
     // Print the problem line in CNF format
-    cout << "p cnf " << numVars << " " << clauses.size() << endl;
+    cout << "p cnf " << totalVars << " " << clauses.size() << endl;
 
     for (const auto& clause : clauses) {
         for (size_t j = 0; j < clause.size() - 1; j++) {
@@ -343,10 +353,10 @@ int main() {
     prettyPrintClauses(clauses, n, "pairwise_encoding");
 
     // Generate the bitwise clauses
-    auto bitwiseClauses = genBitwiseClauses(matrix, n);
+    auto bitwiseClauses = genBitwiseClauses(matrix, n, k);
 
     // Print the clauses to the file
-    prettyPrintBitwiseEncoding(bitwiseClauses, k, "bitwise_encoding");
+    prettyPrintBitwiseEncoding(bitwiseClauses, n, "bitwise_encoding");
 
     // Generate the matrix encoding clauses
     auto matrixClauses = genMatrixClauses(matrix, k);

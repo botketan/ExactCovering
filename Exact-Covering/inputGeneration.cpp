@@ -317,7 +317,7 @@ void prettyPrintMatrixClauses(vector<vector<int>> &clauses, int n, string fileNa
     freopen(fileName.append(".txt").c_str(), "w", stdout);
 
     // Print the problem line in CNF format
-    cout << "p cnf " << n + ceil(sqrt(n)) * ceil(sqrt(n)) << " " << clauses.size() << endl;
+    cout << "p cnf " << n + ceil(sqrt(n)) + ceil(n/(double)ceil(sqrt(n))) << " " << clauses.size() << endl;
 
     // Loop through each clause and print it
     for (auto clause : clauses)

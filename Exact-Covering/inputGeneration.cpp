@@ -1,4 +1,5 @@
 #include "inputGeneration.h"
+int tot_variable_counter = 0;
 
 // Function to print the matrix in a raw binary format
 // 'matrix' is a vector of sets where each set represents the items in a row
@@ -197,21 +198,13 @@ void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int n, strin
 vector<vector<int>> genMatrixClauses(vector<set<int>> &matrix, int k)
 {
     vector<vector<int>> ItemsMapping(k + 1); // Map of items to their row indices
-    int n = matrix.size();                   // Number of rows
-    int p = ceil(sqrt(n));
-    int q = ceil(n / (double)p);
-    map<int, int> u_map, v_map;
-    for (int i = 1; i <= p; i++)
-    {
-        u_map[i] = n + i;
-    }
-    for (int i = 1; i <= q; i++)
-    {
-        v_map[i] = n + p + i;
-    }
+
+    map<int, int> u_map, v_map, x_map;
+    int N = matrix.size(); // Number of rows
+    tot_variable_counter = N;
 
     // Loop through each row and map the items to their respective rows
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < N; i++)
     {
         for (auto item : matrix[i])
         {
@@ -223,79 +216,76 @@ vector<vector<int>> genMatrixClauses(vector<set<int>> &matrix, int k)
     // Generate the clauses
     for (int i = 1; i <= k; i++)
     {
-        set<int> u, v;
-        vector<int> u_vec, v_vec;
-        for (auto x : ItemsMapping[i])
+        int n = ItemsMapping[i].size(); // Number of rows
+        int p = ceil(sqrt(n));
+        int q = ceil(n / (double)p);
+        u_map.clear();
+        v_map.clear();
+        x_map.clear();
+        for (int j = 0; j < ItemsMapping[i].size(); j++)
         {
-            u.insert((x - 1) % p + 1);
-            v.insert((x - 1) / p + 1);
+            x_map[j + 1] = ItemsMapping[i][j];
         }
-        for (auto x : u)
+        for (int j = 1; j <= p; j++)
         {
-            u_vec.push_back(x);
+            u_map[j] = ++tot_variable_counter;
         }
-        for (auto x : v)
+        for (int j = 1; j <= q; j++)
         {
-            v_vec.push_back(x);
+            v_map[j] = ++tot_variable_counter;
         }
+
         vector<int> mainClause;
 
         // Generate a clause that includes all rows containing the current item
-        for (auto x : ItemsMapping[i])
+        for (int j = 1; j <= n; j++)
         {
-            mainClause.push_back(x); // Add row index to the clause
+            mainClause.push_back(x_map[j]); // Add row index to the clause
         }
-        mainClause.push_back(0);    // Clause terminator (0)
+        mainClause.push_back(0);   // Clause terminator (0)
         Clauses.insert(mainClause); // Add the clause to the list
 
         // 2
         mainClause.clear();
-        for (auto x : u)
+        for (int j = 1; j <= p; j++)
         {
-            mainClause.push_back(u_map[x]); 
+            mainClause.push_back(u_map[j]);
         }
-        mainClause.push_back(0);   
-        Clauses.insert(mainClause); 
+        mainClause.push_back(0);
+        Clauses.insert(mainClause);
 
         // 3
-        for (int i = 0; i < u_vec.size(); i++)
+        for (int j = 1; j < p; j++)
         {
-            for (int j = i + 1; j < u_vec.size(); j++)
+            for (int l = j + 1; l <= p; l++)
             {
-                Clauses.insert({-u_map[u_vec[i]], -u_map[u_vec[j]], 0});
+                Clauses.insert({-u_map[j], -u_map[l], 0});
             }
         }
 
         // 4
         mainClause.clear();
-        for (auto x : v)
+        for (int j = 1; j <= q; j++)
         {
-            mainClause.push_back(v_map[x]);
+            mainClause.push_back(v_map[j]);
         }
-        mainClause.push_back(0);    // Clause terminator (0)
+        mainClause.push_back(0);   // Clause terminator (0)
         Clauses.insert(mainClause); // Add the clause to the list
 
         // 5
-        for (int i = 0; i < v_vec.size(); i++)
+        for (int j = 1; j < q; j++)
         {
-            for (int j = i + 1; j < v_vec.size(); j++)
+            for (int l = j + 1; l <= q; l++)
             {
-                Clauses.insert({-v_map[v_vec[i]], -v_map[v_vec[j]], 0});
+                Clauses.insert({-v_map[j], -v_map[l], 0});
             }
         }
 
         // 6
-        for (auto x : u)
+        for (int j = 1; j <= n; j++)
         {
-            for (auto y : v)
-            {
-                if ((y - 1) * q + x > n)
-                {
-                    continue;
-                }
-                Clauses.insert({-((y - 1) * q + x), u_map[x],0});
-                Clauses.insert({-((y - 1) * q + x), v_map[y],0});
-            }
+            Clauses.insert({-x_map[j], v_map[(j+p-1)/p], 0});
+            Clauses.insert({-x_map[j], u_map[(j-1)%p+1], 0});
         }
     }
     vector<vector<int>> Clauses_vec;
@@ -317,7 +307,7 @@ void prettyPrintMatrixClauses(vector<vector<int>> &clauses, int n, string fileNa
     freopen(fileName.append(".txt").c_str(), "w", stdout);
 
     // Print the problem line in CNF format
-    cout << "p cnf " << n + ceil(sqrt(n)) + ceil(n/(double)ceil(sqrt(n))) << " " << clauses.size() << endl;
+    cout << "p cnf " << tot_variable_counter << " " << clauses.size() << endl;
 
     // Loop through each clause and print it
     for (auto clause : clauses)

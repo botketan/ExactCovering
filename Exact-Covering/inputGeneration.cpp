@@ -293,8 +293,8 @@ vector<vector<int>> genMatrixClauses(vector<set<int>> &matrix, int k)
                 {
                     continue;
                 }
-                Clauses.insert({-((y - 1) * q + x), u_map[x]});
-                Clauses.insert({-((y - 1) * q + x), v_map[y]});
+                Clauses.insert({-((y - 1) * q + x), u_map[x],0});
+                Clauses.insert({-((y - 1) * q + x), v_map[y],0});
             }
         }
     }

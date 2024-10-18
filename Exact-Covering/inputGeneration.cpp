@@ -133,7 +133,7 @@ void prettyPrintClauses(vector<vector<int>>& clauses, int n, string fileName) {
 // Function to generate bitwise encoding clauses
 vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n, int k) {
     int auxVarsCount = ceil(log2(n)); // Number of auxiliary variables needed for binary encoding
-    int totalVars = n + auxVarsCount; // Total variables are the row vars + auxiliary vars
+    int totalVars = n * (1 + auxVarsCount); // Total variables are the row vars + auxiliary vars
     
     vector<vector<int>> clauses; // Store the resulting clauses
     
@@ -165,9 +165,9 @@ vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n, int k) {
         for (int bit = 0; bit < auxVarsCount; bit++) {
             int binaryDigit = (i >> bit) & 1; // Extract the bit (0 or 1) at position `bit` of row index `i`
             if (binaryDigit == 1) {
-                clauses.push_back({-i, bit + n + 1, 0}); // -x_i or a_j
+                clauses.push_back({-i, bit + n + 1 + auxVarsCount * (i - 1), 0}); // -x_i or a_j
             } else {
-                clauses.push_back({-i, -(bit + n + 1), 0}); // -x_i or ¬a_j
+                clauses.push_back({-i, -(bit + n + 1 + auxVarsCount * (i - 1)), 0}); // -x_i or ¬a_j
             }
         }
     }
@@ -181,7 +181,7 @@ void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int n, strin
     freopen(fileName.append(".txt").c_str(), "w", stdout);
     
     int auxVarsCount = ceil(log2(n)); // Number of auxiliary variables needed for binary encoding
-    int totalVars = n + auxVarsCount; // Total variables are the row vars + auxiliary vars
+    int totalVars = n * (1 + auxVarsCount); // Total variables are the row vars + auxiliary vars
 
     // Print the problem line in CNF format
     cout << "p cnf " << totalVars << " " << clauses.size() << endl;

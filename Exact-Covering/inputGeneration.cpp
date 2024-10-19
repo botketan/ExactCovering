@@ -131,9 +131,7 @@ void prettyPrintClauses(vector<vector<int>>& clauses, int n, string fileName) {
 }
 
 // Function to generate bitwise encoding clauses
-vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n, int k) {
-    int auxVarsCount = ceil(log2(n)); // Number of auxiliary variables needed for binary encoding
-    int totalVars = n * (1 + auxVarsCount); // Total variables are the row vars + auxiliary vars
+pair<vector<vector<int>>, int> genBitwiseClauses(vector<set<int>>& matrix, int n, int k) {
     
     vector<vector<int>> clauses; // Store the resulting clauses
     
@@ -147,6 +145,8 @@ vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n, int k) {
         }
     }
 
+    int curVarIndex = n; // To keep track of the total variables
+
     // Generate the clauses
     for (int i = 1; i <= k; i++) {
         vector<int> mainClause;
@@ -157,34 +157,37 @@ vector<vector<int>> genBitwiseClauses(vector<set<int>>& matrix, int n, int k) {
         }
         mainClause.push_back(0); // Clause terminator (0)
         clauses.push_back(mainClause); // Add the clause to the list
-    }
-    
-    // Exactly one clause using binary representation
-    for (int i = 1; i <= n; i++) {
-        // For each row, encode its binary form using auxiliary variables
-        for (int bit = 0; bit < auxVarsCount; bit++) {
-            int binaryDigit = (i >> bit) & 1; // Extract the bit (0 or 1) at position `bit` of row index `i`
-            if (binaryDigit == 1) {
-                clauses.push_back({-i, bit + n + 1 + auxVarsCount * (i - 1), 0}); // -x_i or a_j
-            } else {
-                clauses.push_back({-i, -(bit + n + 1 + auxVarsCount * (i - 1)), 0}); // -x_i or ¬a_j
+
+        if(mainClause.size() > 1) { // Non empty clause
+            int maxRow = mainClause[mainClause.size() - 2];
+            int auxVar = ceil(log2(maxRow));
+
+            for(int j = 0; j < mainClause.size() - 1; j++) {
+                int var = mainClause[j];
+                for (int bit = 0; bit < auxVar; bit++) {
+                    int binaryDigit = (var >> bit) & 1; // Extract the bit (0 or 1) at position `bit` of row index `i`
+                    if (binaryDigit == 1) {
+                        clauses.push_back({-var, bit + curVarIndex + 1 , 0}); // -x_i or a_j
+                    } else {
+                        clauses.push_back({-var, -(bit + curVarIndex + 1), 0}); // -x_i or ¬a_j
+                    }
+                }
             }
+
+            curVarIndex += auxVar;
         }
     }
 
-    return clauses; // Return the generated clauses
+    return {clauses, curVarIndex}; // Return the generated clauses
 }
 
 // Function to output clauses to a file
-void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int n, string fileName) {
+void prettyPrintBitwiseEncoding(const vector<vector<int>>& clauses, int bitwiseVariables, string fileName) {
     // Redirect standard output to the file defined by fileName
     freopen(fileName.append(".txt").c_str(), "w", stdout);
-    
-    int auxVarsCount = ceil(log2(n)); // Number of auxiliary variables needed for binary encoding
-    int totalVars = n * (1 + auxVarsCount); // Total variables are the row vars + auxiliary vars
 
     // Print the problem line in CNF format
-    cout << "p cnf " << totalVars << " " << clauses.size() << endl;
+    cout << "p cnf " << bitwiseVariables << " " << clauses.size() << endl;
 
     for (const auto& clause : clauses) {
         for (size_t j = 0; j < clause.size() - 1; j++) {
@@ -342,11 +345,13 @@ int main() {
     // Print the clauses to the file in DIMACS format
     prettyPrintClauses(clauses, n, "pairwise_encoding");
 
-    // Generate the bitwise clauses
-    auto bitwiseClauses = genBitwiseClauses(matrix, n, k);
+    // Generate the bitwise clauses and number of variables
+    auto bitwiseClausesPair = genBitwiseClauses(matrix, n, k);
+    auto bitwiseClauses = bitwiseClausesPair.first;
+    auto bitwiseVariables = bitwiseClausesPair.second;
 
     // Print the clauses to the file
-    prettyPrintBitwiseEncoding(bitwiseClauses, n, "bitwise_encoding");
+    prettyPrintBitwiseEncoding(bitwiseClauses, bitwiseVariables, "bitwise_encoding");
 
     // Generate the matrix encoding clauses
     auto matrixClauses = genMatrixClauses(matrix, k);

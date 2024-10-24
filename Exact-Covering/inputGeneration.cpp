@@ -323,24 +323,46 @@ void prettyPrintMatrixClauses(vector<vector<int>> &clauses, int n, string fileNa
     }
 }
 
+pair<vector<set<int>>,int> readFromIn(){
+    freopen("input_raw.txt","r",stdin);
+    int n,m;
+    cin>>n>>m;
+    vector<set<int>> matrix(n);
+    int x;
+    for(int i =0;i<n;i++){
+        for(int j = 0;j<m;j++){
+          cin>>x;
+          if(x){
+            matrix[i].insert(j+1);
+          }  
+        }
+    }
+    return {matrix,m};
+}
+
 // Main function
 int main() {
     srand(time(0)); // Seed the random number generator
-    cout << "Input n and k :"; // Prompt for user input
-    int n, k;
-    cin >> n >> k; // Read 'n' (number of rows) and 'k' (number of items)
+    // cout << "Input n and k :"; // Prompt for user input
+    // int n, k;
+    // cin >> n >> k; // Read 'n' (number of rows) and 'k' (number of items)
 
-    // Generate the matrix and store it in 'matrix'
-    auto matrix = generateMatrix(n, k);
+    // // Generate the matrix and store it in 'matrix'
+    // auto matrix = generateMatrix(n, k);
 
-    // Print the matrix to the file
-    prettyPrintMatrix(matrix, k);
+    // // Print the matrix to the file
+    // prettyPrintMatrix(matrix, k);
 
-    //Print raw Matrix to the file
-    printMatrix(matrix,k);
+    // //Print raw Matrix to the file
+    // printMatrix(matrix,k);
+
+    auto out = readFromIn();
+    auto matrix = out.first;
+    int k = out.second;
+    int n = matrix.size();
 
     // Generate the CNF clauses based on the matrix
-    auto clauses = genClauses(matrix, k);
+    auto clauses = genClauses(matrix,k );
 
     // Print the clauses to the file in DIMACS format
     prettyPrintClauses(clauses, n, "pairwise_encoding");

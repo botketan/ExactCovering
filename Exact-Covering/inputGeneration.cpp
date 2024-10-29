@@ -75,6 +75,40 @@ vector<set<int>> generateMatrix(int n, int k) {
     return nrows; // Return the generated matrix
 }
 
+vector<set<int>> generateSATMatrix(int n , int k){
+    vector<set<int>> nrows(n);
+    int numOfSatrows = rand()%n +1;
+    set<int> satrows;
+    while (satrows.size()<numOfSatrows){
+        satrows.insert(rand()%n);
+    }
+    vector<int> satrowsIndexed;
+    for(auto it: satrows){
+        satrowsIndexed.push_back(it);
+        cout<<"Sat rows"<<endl;
+        cout<<it<<endl;
+    }
+    
+    //Sat Condition Satisfying
+    for(int i =1 ;i<=k;i++){
+        int ind = rand()%numOfSatrows;
+        nrows[satrowsIndexed[ind]].insert(i);
+    }
+
+    //Filling other rows
+    for (int i = 0; i < n; i++) {
+        if(satrows.find(i)!= satrows.end()) continue;
+        int numOfItems = rand() % k + 1; // Random number of items in the row
+
+        // Add random distinct items to the row
+        while (numOfItems--) {
+            int randomItem = rand() % k + 1; // Generate random item between 1 and k
+            nrows[i].insert(randomItem); // Insert item into the set (row)
+        }
+    }
+    return nrows; // Return the generated matrix
+}
+
 // Function to generate CNF clauses based on the matrix
 // Each clause ensures that specific pairs of items do not appear together
 vector<vector<int>> genClauses(vector<set<int>>& matrix, int k) {
@@ -340,21 +374,27 @@ pair<vector<set<int>>,int> readFromIn(){
     return {matrix,m};
 }
 
+void genInputAndEncoding(bool sat){
+    srand(time(0)); // Seed the random number generator
+    cout << "Input n and k :"; // Prompt for user input
+    int n, k;
+    cin >> n >> k; // Read 'n' (number of rows) and 'k' (number of items)
+
+    // Generate the matrix and store it in 'matrix'
+    auto matrix = generateMatrix(n, k);
+
+    if (sat) matrix = generateSATMatrix(n,k);
+
+    // Print the matrix to the file
+    prettyPrintMatrix(matrix, k);
+
+    //Print raw Matrix to the file
+    printMatrix(matrix,k);
+}
+
 // Main function
 int main() {
-    srand(time(0)); // Seed the random number generator
-    // cout << "Input n and k :"; // Prompt for user input
-    // int n, k;
-    // cin >> n >> k; // Read 'n' (number of rows) and 'k' (number of items)
-
-    // // Generate the matrix and store it in 'matrix'
-    // auto matrix = generateMatrix(n, k);
-
-    // // Print the matrix to the file
-    // prettyPrintMatrix(matrix, k);
-
-    // //Print raw Matrix to the file
-    // printMatrix(matrix,k);
+    genInputAndEncoding(true); // Comment out if using custom input
 
     auto out = readFromIn();
     auto matrix = out.first;

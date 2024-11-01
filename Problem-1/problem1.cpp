@@ -104,8 +104,8 @@ void addNoThreeEquallySpacedConstraint(vector<vector<int>>&ans, int n){
 
 int main()
 {
-    int n = 99;
-    int k = 27;
+    int n,k;
+    cin >> n >> k;
     vector<vector<int>>ans;
     generateExactKOptimised(ans,n,k);
     // No 3 equally spaced ones constraints

@@ -1,4 +1,6 @@
 #include "inputGeneration.h"
+#include <bits/stdc++.h>
+using namespace std;
 int tot_variable_counter = 0;
 
 // Function to print the matrix in a raw binary format
@@ -41,7 +43,7 @@ void printMatrix(vector<set<int>> &matrix, int k) {
 // 'k' is the number of distinct items allowed in each row
 void prettyPrintMatrix(vector<set<int>> &matrix, int k) {
     // Redirect standard output to the file "input_matrix.txt"
-    freopen("input_encoded.txt", "w", stdout);
+    ofstream cout("input_encoded.txt");
 
     cout<<matrix.size()<<" "<<k<<endl;
 
@@ -49,11 +51,13 @@ void prettyPrintMatrix(vector<set<int>> &matrix, int k) {
     for (auto row : matrix) {
         string temp;
         // For each item in the row, append it to a string
+        int n = row.size();
+        int c = 0;
         for (auto item : row) {
-            temp += to_string(item) + " "; // Add item to string with a space
-        }
-        temp.pop_back(); // Remove the trailing space from the string
-        cout << temp << endl; // Print the row
+            cout<<to_string(item);
+            if(c++<n-1) cout<<" "; 
+        } // Remove the trailing space from the string
+        cout<< endl; // Print the row
     }
 }
 
@@ -83,9 +87,9 @@ vector<set<int>> generateSATMatrix(int n , int k){
         satrows.insert(rand()%n);
     }
     vector<int> satrowsIndexed;
+    cout<<"Sat rows"<<endl;
     for(auto it: satrows){
         satrowsIndexed.push_back(it);
-        cout<<"Sat rows"<<endl;
         cout<<it<<endl;
     }
     
@@ -150,7 +154,7 @@ vector<vector<int>> genClauses(vector<set<int>>& matrix, int k) {
 // 'n' is the number of variables
 void prettyPrintClauses(vector<vector<int>>& clauses, int n, string fileName) {
     // Redirect standard output to the file defined by fileName
-    freopen(fileName.append(".txt").c_str(), "w", stdout);
+    ofstream cout(fileName.append(".txt").c_str());
 
     // Print the problem line in CNF format
     cout << "p cnf " << n << " " << clauses.size() << endl;
@@ -381,9 +385,12 @@ void genInputAndEncoding(bool sat){
     cin >> n >> k; // Read 'n' (number of rows) and 'k' (number of items)
 
     // Generate the matrix and store it in 'matrix'
-    auto matrix = generateMatrix(n, k);
-
+    vector<set<int>> matrix;
     if (sat) matrix = generateSATMatrix(n,k);
+    else matrix = generateMatrix(n, k);
+
+    cout<<"Matrix Generated"<<endl;
+    
 
     // Print the matrix to the file
     prettyPrintMatrix(matrix, k);

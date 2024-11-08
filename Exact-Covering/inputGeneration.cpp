@@ -401,7 +401,7 @@ void genInputAndEncoding(bool sat){
 
 // Main function
 int main() {
-    genInputAndEncoding(true); // Comment out if using custom input
+    //genInputAndEncoding(true); // Comment out if using custom input
 
     auto out = readFromIn();
     auto matrix = out.first;

@@ -37,3 +37,7 @@ Followed by C lines
 ```
 
 Here p denotes a propositional formula. cnf denotes cnf formula. C denotes the number of clauses and V denotes the number of variables in the formula.
+
+## Stats file
+All the `*_stats.ipynb` notebooks contain a satistical evaluation of encodings based on different parameters of the sat solver `cadical`. To run these do ensure you have a working python version insatlled on your pc. 
+Change the `cadical_path` variable to the path of installion of `cadical` on your local device. This variable can be found in the first cell of all the notebooks. Each notebook contains an 
